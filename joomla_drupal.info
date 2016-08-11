@@ -1,0 +1,8 @@
+name = "Joomla Drupal migration"
+description = "Extending migrate module to migrate joomla site into drupal7"
+core = 7.x
+version = 7.x-1.0
+dependencies[] = migrate
+
+files[] = posts.inc
+files[] = users.inc

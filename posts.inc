@@ -1,21 +1,21 @@
 <?php
 
-class postMigration extends Migration {
-  public function __construct() {
-    parent::__construct();
+class ArticleMigration extends Migration {
 
-    $this->descriprion = t("Migrate posts from rails to drupal7");
+  public function __construct(array $arguments) {
+    parent::__construct($arguments);
+    $this->description = t("Migrate articles from Joomla to drupal7");
 
     $source_fields = array(
       'nid' => t('Node ID'),
     );
 
-    $query = db_select('joomla.c7nts_content','p')
-             ->fields('p', array('id', 'created_by', 'title', 'introtext', 'created', 'modified'));
+    $query = Database::getConnection('default', 'ic_joomla')->select('jos_content','p')
+             ->fields('p', array('id', 'created_by', 'title', 'introtext', 'fulltext' ,'created', 'modified', 'alias'));
 
     $this->source = new MigrateSourceSQL($query);
 
-    $this->destination = new MigrateDestinationNode('posts');
+    $this->destination = new MigrateDestinationNode('article');
 
     $this->map = new MigrateSQLMap($this->machineName,
         array(
@@ -29,17 +29,14 @@ class postMigration extends Migration {
         MigrateDestinationNode::getKeySchema()
     );
 
-    $generic_textarea_arguments = MigrateTextFieldHandler::arguments(NULL, 'full_html');
+
     $this->addFieldMapping('is_new')->defaultValue(TRUE);
     $this->addFieldMapping('title', 'title');
 		$this->addFieldMapping('uid', 'created_by')
     		 ->sourceMigration('user')
     		 ->defaultValue(1);
+
     $this->addFieldMapping('status')->defaultValue(TRUE);
-    $this->addFieldMapping('revision_uid')
-				->issueGroup(t('DNM'));
-		$this->addFieldMapping('revision')
-				->issueGroup(t('DNM'));
     $this->addFieldMapping('created', 'created');
     $this->addFieldMapping('changed', 'modified');
     $this->addFieldMapping('comment')->defaultValue(2);
@@ -48,10 +45,11 @@ class postMigration extends Migration {
     $this->addFieldMapping('language')
     		->defaultValue('und');
 
-    $this->addFieldMapping('body_summary', 'introtext')
-        ->arguments($generic_textarea_arguments);
-    $this->addFieldMapping('path')
-    			->issueGroup(t('DNM'));
+    $this->addFieldMapping('body:summary', 'introtext');
+
+    $this->addFieldMapping('body', 'fulltext');
+
+    $this->addFieldMapping('path', 'alias');
   }
   public function prepareRow($current_row) {
     $current_row->created = strtotime($current_row->created);

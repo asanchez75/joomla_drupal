@@ -2,15 +2,15 @@
 
   class UserMigration extends Migration {
 
-   public function __construct() {
-    parent::__construct();
+   public function __construct(array $arguments) {
+    parent::__construct($arguments);
     $this->description = t('Migrate rails Users');
 
     $source_fields = array(
       'id' => t('User ID'),
     );
 
-    $query = db_select('joomla.c7nts_users', 'u')
+    $query = Database::getConnection('default', 'ic_joomla')->select('jos_users', 'u')
               ->fields('u', array('id', 'username', 'email', 'password', 'registerDate'))
               ->condition('u.id', array(1), "NOT IN");
 
@@ -37,18 +37,10 @@
     $this->addFieldMapping('pass', 'password');
     $this->addFieldMapping('language')->defaultValue('und');
     $this->addFieldMapping('theme')->defaultValue('');
-    $this->addFieldMapping('signature')
-          ->issueGroup(t('DNM'));
-    $this->addFieldMapping('signature_format')->defaultValue('filtered_html');
     $this->addFieldMapping('created', 'registerDate');
-    $this->addFieldMapping('access')
-          ->issueGroup(t('DNM'));
-    $this->addFieldMapping('login')
-          ->issueGroup(t('DNM'));
     $this->addFieldMapping('status')->defaultValue(1);
     $this->addFieldMapping('picture')->defaultValue(0);
-    $this->addFieldMapping('init')
-          ->issueGroup(t('DNM'));
+
   }
 
   public function complete($entity, stdClass $row) {
