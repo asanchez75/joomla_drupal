@@ -11,7 +11,7 @@ class ArticleMigration extends Migration {
     );
 
     $query = Database::getConnection('default', 'ic_joomla')->select('jos_content','p')
-             ->fields('p', array('id', 'created_by', 'title', 'introtext', 'fulltext' ,'created', 'modified', 'alias'));
+             ->fields('p', array('id', 'created_by', 'title', 'introtext', 'full_text' ,'created', 'alias'));
 
     $this->source = new MigrateSourceSQL($query);
 
@@ -33,22 +33,20 @@ class ArticleMigration extends Migration {
     $this->addFieldMapping('is_new')->defaultValue(TRUE);
     $this->addFieldMapping('title', 'title');
 		$this->addFieldMapping('uid', 'created_by')
-    		 ->sourceMigration('user')
+    		 ->sourceMigration('UserMigration')
     		 ->defaultValue(1);
 
     $this->addFieldMapping('status')->defaultValue(TRUE);
     $this->addFieldMapping('created', 'created');
-    $this->addFieldMapping('changed', 'modified');
     $this->addFieldMapping('comment')->defaultValue(2);
     $this->addFieldMapping('promote')->defaultValue(1);
     $this->addFieldMapping('sticky')->defaultValue(0);
     $this->addFieldMapping('language')
     		->defaultValue('und');
 
+    $this->addFieldMapping('body', 'full_text');
     $this->addFieldMapping('body:summary', 'introtext');
-
-    $this->addFieldMapping('body', 'fulltext');
-
+    $this->addFieldMapping('body:format', NULL, FALSE)->defaultValue('full_html');
     $this->addFieldMapping('path', 'alias');
   }
   public function prepareRow($current_row) {
